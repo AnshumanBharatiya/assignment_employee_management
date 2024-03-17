@@ -5,8 +5,13 @@ error_reporting(0);
 if (!isset($_SESSION['emp_user'])) {
     header('location:index.php');
 }
+
+if($_SESSION['new_user_status'] == "1" || $_SESSION['days_difference'] >= 30){
+    header('location:password_change.php');
+}
+
 $emp_user = $_SESSION['emp_user'];
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id']; // for the task stored along with the loggedin user id
 
 ?>
 <!DOCTYPE html>
@@ -49,9 +54,9 @@ $user_id = $_SESSION['user_id'];
             <div class="jumbotron">
                 <div class="container">
                     
-                    <?php if(isset($_SESSION['msg']) && $_SESSION['msg'] != ""){ ?>
+                    <?php if(isset($_SESSION['msg1']) && $_SESSION['msg1'] != ""){ ?>
                     <div class="alert alert-primary text-center" role="alert" id="msgDiv">
-                        <?php echo htmlentities($_SESSION['msg']); ?>
+                        <?php echo htmlentities($_SESSION['msg1']); ?>
                     </div>
                     <?php } ?>
 
@@ -91,10 +96,11 @@ $user_id = $_SESSION['user_id'];
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-</body>
+    <script src="../static/js/script.js"></script>
 
+</body>
 </html>
 
 <?php 
-$_SESSION['msg'] = "";
+$_SESSION['msg1'] = "";
 ?>

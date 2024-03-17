@@ -6,9 +6,15 @@ session_start();
 error_reporting(0);
 
 include('../includes/config.php');
+
 if(isset($_SESSION['emp_user']))
 {
-  header('location:user_dashboard.php');
+    if($_SESSION['new_user_status'] == "1" || $_SESSION['days_difference'] >= 30){
+        header('location:password_change.php');
+    }else{
+        header('location:user_dashboard.php');
+    }
+  
 }
 
 $error = null;
@@ -22,21 +28,41 @@ if(isset($_POST['submit']))
 	if($usr_count)
 	{
 		$row =mysqli_fetch_assoc($sresult);
+		$_SESSION['new_user_status']=$row['new_user_status'];
 		$fetch_pass=$row['password'];
 		$_SESSION['emp_user'] = $row['email'];
 		$_SESSION['user_id'] = $row['user_id'];
 		$decode_pass=password_verify($passwords, $fetch_pass);
 		if($decode_pass)
 		{
+            if($_SESSION['new_user_status'] == "1"){
+                header('location:password_change.php');
+            }else{
 
-            date_default_timezone_set("Asia/Kolkata");
-            // Generate current datetime
-            $current_datetime = date('Y-m-d H:i:s');
-            // SQL query to update last_login field with current datetime
-            $sql = "UPDATE user_tbl SET last_login = '$current_datetime' WHERE email='".$email."'";
-            mysqli_query($con,$sql);
 
-            header('location:user_dashboard.php');
+                // Check last password change timestamp
+                $last_password_change = strtotime($row['last_password_change']);
+                $current_time = time();
+                $difference = $current_time - $last_password_change;
+                $_SESSION['days_difference'] = floor($difference / (60 * 60 * 24));
+                
+                // If it's been more than 30 days since last password change, redirect to password change page
+                if ($_SESSION['days_difference'] >= 30) {
+                    header('location:password_change.php');
+                    exit;
+                }else{
+                    date_default_timezone_set("Asia/Kolkata");
+                    // Generate current datetime
+                    $current_datetime = date('Y-m-d H:i:s');
+                    // SQL query to update last_login field with current datetime
+                    $sql = "UPDATE user_tbl SET last_login = '$current_datetime' WHERE user_id='".$_SESSION['user_id']."'";
+                    mysqli_query($con,$sql);
+        
+                    header('location: user_dashboard.php');
+                }
+
+            }
+           
         }
         else
         {
